@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8 />
+<title>Expected Days Per Year Above 95°F</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+
+
+<style>
+
+    body {
+      margin: 0;
+			padding: 0;
+			background: "whitesmoke";
+			font-family: "Monaco", monospace;
+			color: #3d3d3d;
+      }
+
+    h1 {
+      position: absolute;
+      left: 50px;
+      top: 15px;
+      padding: 8px 2%;
+      margin: 0;
+      background: rgba(224, 143, 27, 0.85);
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      color: whitesmoke;
+      font-size: 1.75em;
+      z-index: 800;
+      }
+
+    #map {
+      position:absolute;
+      top:0;
+      bottom:0;
+      width:100%;
+     }
+
+     section {
+      position: absolute;
+ 			bottom: 0;
+ 			left: 10px;
+      height: 200px;
+ 			width: 350px;
+ 			margin: 20px auto;
+ 			padding: 0 15px;
+ 			background: rgba(256, 256, 256);
+ 			border: 1px solid grey;
+ 			border-radius: 12px;
+ 			z-index: 800;
+     }
+
+     p {
+ 			font-size: .9em;
+       font-family: "Monaco", monospace;
+ 			line-height: 1.3em;
+ 		}
+
+     p2 {
+       font-size: .7em;
+       font-family: "Monaco", monospace;
+       line-height: 1.3em;
+     }
+
+
+ 		a {
+ 			color: #005daa;
+ 			text-decoration: none;
+ 		}
+
+ 		a:hover {
+ 			text-decoration: underline;
+ 		}
+
+</style>
+
+</head>
+
+<body>
+
+  <div id='map'></div>
+
+  <h1>Expected Days Per Year Above 95°F Under High Emissions (2020-2039)</h1>
+
+  <section>
+    <h2>Expected Days Per Year Above 95°F</h2>
+      <p> The days represent an average per year from 2020-2039 under high emission standards (RCP 8.5) with a median probability.</p>
+      <p2> Data retrieved from <a href="https://impactlab.org/map/#usmeas=absolute&usyear=1981-2010&gmeas=absolute&gyear=1986-2005&tab=united-states&usvar=tasmax">Climate Impact Lab</a></p2>
+  </section>
+
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+
+    var map = L.map('map', {
+        center: [39.5, -95.3],
+        zoom: 4
+    });
+
+    var Stamen_TonerLite = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        ext: 'png'
+    }).addTo(map);
+
+
+
+    $.getJSON('assets/data.geojson', function (data) {
+
+        drawMap(data);
+    });
+
+    function drawMap(data) {
+
+        var options = {
+
+            pointToLayer: pointToLayer,
+            style: style,
+            onEachFeature: onEachFeature
+
+        }
+
+        L.geoJson(data, options).addTo(map);
+
+         drawLegend(data)
+
+    }
+
+
+    function pointToLayer(feature, latlng) {
+
+        return L.circleMarker(latlng, {
+
+            radius: calcRadius(feature.properties.expected)
+
+        });
+
+    }
+
+    function style(feature) {
+
+        var styleOptions = {
+
+          color: '#e08f1b',
+          opacity: 1,
+          weight: 2,
+          fillColor: '#e08f1b',
+          fillOpacity: .5,
+
+        }
+
+        if (feature.properties.TYPE === 'to') {
+           styleOptions.fillColor = '#f2c25f';
+        } else {
+            styleOptions.fillColor = '#f2c25f';
+       }
+
+        return styleOptions;
+
+    }
+
+    function onEachFeature(feature, layer) {
+
+        layer.on({
+            mouseover: function (e) {
+                layer.setStyle({
+                    color: "#cf5449",
+                    fillColor: "#cf5449",
+                    weight: 4
+                });
+
+            },
+            mouseout: function (e) {
+
+                layer.setStyle({
+                    color: "#e08f1b",
+                    fillColor: "#f2c25f",
+                    weight: 2
+                });
+            }
+        });
+
+        var typeCode = {
+            'to': "expected",
+        }
+
+        var toolTipInfo = "State: " + feature.properties.name + "<br>" +
+            "Days: " + feature.properties.expected
+
+
+        layer.bindTooltip(toolTipInfo);
+
+    }
+
+    var minValue = 1;
+    var minRadius = 8;
+
+    function calcRadius(val) {
+
+      return 1.00 * Math.pow(val/minValue,.35) * minRadius;
+      }
+
+
+
+</script>
+</body>
+</html>
