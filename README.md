@@ -1,2 +1,2 @@
-# Expected-Days-Above-95-F
-This map displays the expected days per year above 95°F from 2020-2039 in the U.S. assuming high emissions with a median probability. 
+### Expected Days Above 95°F
+This map displays the expected days per year above 95°F in the U.S. from 2020-2039 assuming high emissions (RCP 8.5) with a median probability. Creating maps that clearly display climate change data in an easy to understand format can assist with climate change communication particularly for the average citizen. The data was taken from Climate Impact Lab's "Climate Impact Map". The days are represented for each U.S. state in a perceptual circle scaling with higher days having larger circles with color choices coiciding with warm weather. 
